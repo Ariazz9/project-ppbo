@@ -96,7 +96,7 @@ public class Game
         timerManager = new TimerManager();
         background = new Background("/Backgrounds/black.jpg", 0, -1);
         laserSound = new AudioPlayer("/SFX/laser.wav");
-        enemyLaserSound = new AudioPlayer("/SFX/laser-enemy.mp3");
+        enemyLaserSound = new AudioPlayer("/SFX/laser_enemy.wav");
         explosionSound = new AudioPlayer("/SFX/explosion.wav");
         explosionStrayEnemySound = new AudioPlayer("/SFX/explosion_stray_enemy.wav");
         explosionPlayerSound = new AudioPlayer("/SFX/explosion_player.wav");
