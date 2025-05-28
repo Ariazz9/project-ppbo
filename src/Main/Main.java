@@ -61,21 +61,21 @@ public class Main
             }
             EnemyShip.setEnemyShipSprites(-1, sprites);
             sprites = new BufferedImage[7];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion.png"));
+            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion.gif"));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
             Explosion.setExplosionShipSprites(sprites);
             sprites = new BufferedImage[25];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_stray.png"));
+            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_stray.gif"));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
             Explosion.setExplosionStraySprites(sprites);
             sprites = new BufferedImage[14];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_player.png"));
+            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_player.gif"));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
