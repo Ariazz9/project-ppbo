@@ -22,7 +22,7 @@ public class GameOverMenu
     {
         try
         {
-            gameOverImage = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/game-over.jpg"));
+            gameOverImage = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/game_over.jpg"));
         }
         catch (final Exception e)
         {

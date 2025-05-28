@@ -39,7 +39,7 @@ public class Main
         {
             BufferedImage spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Weapons/missile.png"));
             Missile.setMissileSprite(spritesheet.getSubimage(0, 0, 3, 15));
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Weapons/missile-enemy.png"));
+            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Weapons/missile_enemy.png"));
             Missile.setEnemyMissileSprite(spritesheet.getSubimage(0, 0, 3, 15));
             spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Player/player.png"));
             Player.setPlayerSprite(spritesheet.getSubimage(0, 0, 35, 35));
