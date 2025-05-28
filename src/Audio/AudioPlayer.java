@@ -1,4 +1,5 @@
 package Audio;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -13,7 +14,11 @@ public class AudioPlayer
     {
         try
         {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(getClass().getResourceAsStream(filePathAndName));
+            InputStream audioStream = getClass().getResourceAsStream(filePathAndName);
+            if (audioStream == null) {
+                throw new RuntimeException("Audio file not found: " + filePathAndName);
+            }
+            AudioInputStream ais = AudioSystem.getAudioInputStream(audioStream);
             AudioFormat baseFormat = ais.getFormat();
             AudioFormat decodeFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
             AudioInputStream dais = AudioSystem.getAudioInputStream(decodeFormat, ais);
@@ -32,7 +37,7 @@ public class AudioPlayer
     }
     public boolean isRunning()
     {
-        return clip.isRunning();
+        return clip != null && clip.isRunning();
     }
     public void pause()
     {
