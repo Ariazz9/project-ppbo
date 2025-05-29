@@ -5,7 +5,7 @@ public abstract class Entity
     protected double x, y;  //position
     protected int width, height;  //dimensions of sprite
     protected int cwidth, cheight;  //collision width and height
-    protected boolean left, right;  //movement
+    protected boolean down, up;  //movement
     public int getHeight()
     {
         return height;
@@ -32,17 +32,17 @@ public abstract class Entity
         final Rectangle rect2 = other.getRectangle();
         return rect1.intersects(rect2);
     }
-    public void setLeft(final boolean bool)
+    public void setDown(final boolean bool)
     {
-        left = bool;
+        down = bool;
     }
     public void setPosition(final double x, final double y)
     {
         this.x = x;
         this.y = y;
     }
-    public void setRight(final boolean bool)
+    public void setUp(final boolean bool)
     {
-        right = bool;
+        up = bool;
     }
 }

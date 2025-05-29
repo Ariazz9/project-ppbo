@@ -16,8 +16,8 @@ public class GameOverMenu
     private final Rectangle optionsRectangle;
     private int currentChoice;
     private BufferedImage gameOverImage;
-    private static final int VERTICALOFFSET = 20;
-    private static final int HORIZONTALOFFSET = 100;
+    private static final int VERTICALOFFSET = 0;
+    private static final int HORIZONTALOFFSET = 125;
     private final Color green = new Color(0, 102, 0);
     public GameOverMenu()
     {

@@ -6,6 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import Audio.AudioPlayer;
@@ -18,14 +21,14 @@ import Entity.ScoreBubble;
 import Main.GamePanel;
 import Menus.HighScore;
 import Menus.MenuManager;
+
 /*
  * to do:
  * resize JPanel and accomodate graphics and speeds
  * explosion sound effects
  * pausing is causing music to start
  */
-public class Game
-{
+public class Game {
     //map objects
     private final ArrayList<EnemyShip> enemies;
     private final ArrayList<Missile> missiles;
@@ -77,14 +80,15 @@ public class Game
 
     private static final String enabledMessage = "enabled";
     private static final String disabledMessage = "disabled";
-    private enum Direction
-    {
+
+    private enum Direction {
         LEFT,
         RIGHT,
+        UP,
         DOWN
     }
-    public Game()
-    {
+
+    public Game() {
         barriers = new ArrayList<Rectangle>(); //Rectangle[4][60];
         missiles = new ArrayList<Missile>();
         enemyMissiles = new ArrayList<Missile>();
@@ -94,7 +98,7 @@ public class Game
         scoreBubbles = new ArrayList<ScoreBubble>();
         menuManager = new MenuManager();
         timerManager = new TimerManager();
-        background = new Background("/Backgrounds/black.jpg", 0, -1);
+        background = new Background("/Backgrounds/black.jpg", -1.5, 0);
         laserSound = new AudioPlayer("/SFX/laser.wav");
         enemyLaserSound = new AudioPlayer("/SFX/laser_enemy.wav");
         explosionSound = new AudioPlayer("/SFX/explosion.wav");
@@ -107,22 +111,19 @@ public class Game
         hud = new HUD(player);
         startMenuMode = true;
     }
-    private void checkForHighScores()
-    {
-        if (continues == 0)
-        {
-            if (!menuManager.getHighScoresMenu().hasAlreadyAttemptedToEnterHighScores())
-            {
+
+    private void checkForHighScores() {
+        if (continues == 0) {
+            if (!menuManager.getHighScoresMenu().hasAlreadyAttemptedToEnterHighScores()) {
                 menuManager.getHighScoresMenu().addHighScore(new HighScore("", player.getScore()));
             }
-            if (menuManager.getHighScoresMenu().enteredHighScores())
-            {
+            if (menuManager.getHighScoresMenu().enteredHighScores()) {
                 showHighScoresMenu = true;
             }
         }
     }
-    private void determineNewSpeed()
-    {
+
+    private void determineNewSpeed() {
         //60 enemies
         if (cheatMode) return;
         if (kills < 11) EnemyShip.setMoveSpeed(0.4);
@@ -136,18 +137,14 @@ public class Game
         else if (kills < 59) EnemyShip.setMoveSpeed(9.0);
         else if (kills < 60) EnemyShip.setMoveSpeed(12.0);
     }
-    public void draw(final Graphics2D g)
-    {
-        if (startMenuMode)
-        {
+
+    public void draw(final Graphics2D g) {
+        if (startMenuMode) {
             if (music.isRunning()) music.stop();
             menuManager.getStartMenu().draw(g);
-            if (showHelpDialog)
-            {
+            if (showHelpDialog) {
                 menuManager.getHelpMenu().draw(g);
-            }
-            else if (showHighScoresMenu)
-            {
+            } else if (showHighScoresMenu) {
                 menuManager.getHighScoresMenu().draw(g);
                 drawMessage(g);
                 return;
@@ -155,26 +152,21 @@ public class Game
             drawMessage(g);
             return;
         }
-        if (showHelpDialog)
-        {
+        if (showHelpDialog) {
             menuManager.getHelpMenu().draw(g);
             drawMessage(g);
             return;
         }
         background.draw(g);
-        if (initiateNewGameMode)
-        {
+        if (initiateNewGameMode) {
             g.setColor(Color.RED);
             g.setFont(countDownFont);
             //System.out.println(countDownNumber);
-            int time = pauseCountDownMode ? countDownNumber : (int)(((System.nanoTime() - timerManager.getTimer(Timer.INITIATE_NEW_GAME)) / 1000000000));
+            int time = pauseCountDownMode ? countDownNumber : (int) (((System.nanoTime() - timerManager.getTimer(Timer.INITIATE_NEW_GAME)) / 1000000000));
             time = 3 - time;
-            if (time > 0)
-            {
+            if (time > 0) {
                 g.drawString(time + "...", 280, 230);
-            }
-            else
-            {
+            } else {
                 player.incrementLevel();
                 newGame();
             }
@@ -182,29 +174,23 @@ public class Game
         for (EnemyShip enemyShip : enemies) {
             enemyShip.draw(g);
         }
-        if (Settings.enabledExplosions())
-        {
-            for (Explosion e : explosions)
-            {
+        if (Settings.enabledExplosions()) {
+            for (Explosion e : explosions) {
                 e.draw(g);
             }
         }
-        if (Settings.enabledScoreBubbles())
-        {
-            for (ScoreBubble sb : scoreBubbles)
-            {
+        if (Settings.enabledScoreBubbles()) {
+            for (ScoreBubble sb : scoreBubbles) {
                 sb.draw(g);
             }
         }
-        if (strayEnemyMode)
-        {
+        if (strayEnemyMode) {
             if (!strayEnemy.isDead()) strayEnemy.draw(g);
         }
         g.setColor(Color.RED);
         if (!barriers.isEmpty())  //concurrent modification error, added this, hopefully goes away
         {
-            for (Rectangle b : barriers)
-            {
+            for (Rectangle b : barriers) {
                 g.draw(b);
             }
         }
@@ -214,7 +200,7 @@ public class Game
 
         }
         for (Missile enemyMissile : enemyMissiles) {
-            g.drawImage(Missile.getEnemyMissileSprite(), (int) (enemyMissile.getx() - enemyMissile.getWidth() / 2), (int) (enemyMissile.gety() - enemyMissile.getHeight() / 2), null);
+            g.drawImage(Missile.getEnemyMissileSprite(), (int) (enemyMissile.getx() - enemyMissile.getWidth() / 2), (int) (enemyMissile.gety() - enemyMissile.getHeight() * 6), null);
             g.draw(enemyMissile.getRectangle());
         }
         for (EnemyShip enemy : enemies) {
@@ -222,61 +208,65 @@ public class Game
         }
         hud.draw(g);
         drawMessage(g);
-        if (player.getFlinching() && !isGameOver && !pauseMode)
-        {
-            if (player.getElapsed() % 2 == 0)
-            {
+        if (player.getFlinching() && !isGameOver && !pauseMode) {
+            if (player.getElapsed() % 2 == 0) {
                 if (!playerExplosionMode) drawPlayerSprite(g);
                 return;
             }
-        }
-        else
-        {
+        } else {
             if (!playerExplosionMode) drawPlayerSprite(g);
             else {
                 g.draw(player.getRectangle());
             }
         }
-        if (isGameOver)
-        {
+        if (isGameOver) {
             if (music.isRunning()) music.stop();
             menuManager.getGameOverMenu().draw(g);
-            if (showHighScoresMenu)
-            {
+            if (showHighScoresMenu) {
                 menuManager.getHighScoresMenu().draw(g);
                 return;
             }
         }
     }
-    private void setMessageSettings(final String message, final int xPos)
-    {
+
+    private void setMessageSettings(final String message, final int xPos) {
         timerManager.setToSystemNanoTime(Timer.SETTING_CHANGE_MESSAGE);
         showSettingChangeMode = true;
         settingChangeMessage = message;
         settingChangeXPos = xPos;
     }
-    private void drawMessage(final Graphics2D g)
-    {
+
+    private void drawMessage(final Graphics2D g) {
         g.setFont(messagesFont);
-        if (showSettingChangeMode)
-        {
+        if (showSettingChangeMode) {
             g.setColor(Color.WHITE);
-            if (System.nanoTime() - timerManager.getTimer(Timer.SETTING_CHANGE_MESSAGE) < 1500000000)
-            {
+            if (System.nanoTime() - timerManager.getTimer(Timer.SETTING_CHANGE_MESSAGE) < 1500000000) {
                 g.drawString(settingChangeMessage, settingChangeXPos, 430);
-            }
-            else
-            {
+            } else {
                 showSettingChangeMode = false;
             }
         }
     }
-    private void drawPlayerSprite(final Graphics2D g)
-    {
-        g.drawImage(Player.getPlayerSprite(), (int)(player.getx() - player.getWidth() / 2), (int)(player.gety() - player.getHeight() / 2), null);
+
+    private void drawPlayerSprite(final Graphics2D g) {
+        BufferedImage sprite = Player.getPlayerSprite();
+
+        // Buat transformasi ROTASI 90 derajat searah jarum jam
+        AffineTransform transform = new AffineTransform();
+        transform.translate(sprite.getHeight() / 2.0, sprite.getWidth() / 2.0); // tengah
+        transform.rotate(Math.toRadians(90));
+        transform.translate(-sprite.getWidth() / 2.0, -sprite.getHeight() / 2.0);
+
+        AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+        BufferedImage rotatedSprite = op.filter(sprite, null);
+
+        // Gambar sprite yang sudah diputar di posisi yang normal
+        g.drawImage(rotatedSprite, (int)(player.getx() - rotatedSprite.getWidth() - 205),
+                (int)(player.gety() - rotatedSprite.getHeight() - 175), null);
     }
-    private Point getClosestBottomMostEnemyPoint()
-    {
+
+
+    private Point getClosestBottomMostEnemyPoint() {
         Point point;
         bottomEnemyPoints.clear();
         for (EnemyShip enemy : enemies) {
@@ -291,10 +281,8 @@ public class Game
         }
         double x = Integer.MAX_VALUE;
         int index = 0;
-        for (int i = 0; i < bottomEnemyPoints.size(); i++)
-        {
-            if (Math.abs(bottomEnemyPoints.get(i).x - player.getx()) < x)
-            {
+        for (int i = 0; i < bottomEnemyPoints.size(); i++) {
+            if (Math.abs(bottomEnemyPoints.get(i).x - player.getx()) < x) {
                 x = Math.abs(bottomEnemyPoints.get(i).x - player.getx());
                 index = i;
             }
@@ -302,143 +290,99 @@ public class Game
         //return bottomEnemyPoints.get((new Random()).nextInt(bottomEnemyPoints.size()));
         return bottomEnemyPoints.get(index);
     }
+
     @SuppressWarnings("incomplete-switch")
-    private int getDirectionalMostEnemy(final Direction direction)
-    {
+    private int getDirectionalMostEnemy(final Direction direction) {
         int ship = 0;
         double position = switch (direction) {
-            case LEFT -> 700;
-            case RIGHT -> 100;
+            case DOWN -> 640;
+            case UP -> 210;
             default -> 0;
         };
-        for (int x = 0; x < enemies.size(); x++)
-        {
-            switch(direction)
-            {
-                case LEFT:
-                    if (enemies.get(x).getx() < position)
-                    {
-                        position = enemies.get(x).getx();
-                        ship = x;
+        for (int y = 0; y < enemies.size(); y++) {
+            switch (direction) {
+                case UP:
+                    if (enemies.get(y).gety() < position) {
+                        position = enemies.get(y).gety();
+                        ship = y;
                     }
                     break;
-                case RIGHT:
-                    if (enemies.get(x).getx() > position)
-                    {
-                        position = enemies.get(x).getx();
-                        ship = x;
-                    }
-                    break;
-                case DOWN:
-                    if (enemies.get(x).gety() > position)
-                    {
-                        position = enemies.get(x).gety();
-                        ship = x;
+                case DOWN, LEFT:
+                    if (enemies.get(y).gety() > position) {
+                        position = enemies.get(y).gety();
+                        ship = y;
                     }
                     break;
             }
         }
         return ship;
     }
-    public boolean isPaused()
-    {
+
+    public boolean isPaused() {
         return pauseMode;
     }
-    public void keyPressed(final int k)
-    {
-        if (!menuManager.getHighScoresMenu().enteredHighScores())
-        {
-            if (k == KeyEvent.VK_B)
-            {
+
+    public void keyPressed(final int k) {
+        if (!menuManager.getHighScoresMenu().enteredHighScores()) {
+            if (k == KeyEvent.VK_B) {
                 Settings.toggleBackgroundImage();
                 setMessageSettings("Background image " + (Settings.enabledBackground() ? enabledMessage : disabledMessage), 435);
-            }
-            else if (k == KeyEvent.VK_S)
-            {
+            } else if (k == KeyEvent.VK_Q) {
                 Settings.toggleSound();
                 setMessageSettings("Sound " + (Settings.enabledSound() ? enabledMessage : disabledMessage), 505);
-            }
-            else if (k == KeyEvent.VK_M)
-            {
+            } else if (k == KeyEvent.VK_M) {
                 Settings.toggleMusic();
                 setMessageSettings("Music " + (Settings.enabledMusic() ? enabledMessage : disabledMessage), 505);
-                if (Settings.enabledMusic() && !pauseMode)
-                {
+                if (Settings.enabledMusic() && !pauseMode) {
                     music.loop();
-                }
-                else
-                {
+                } else {
                     music.stop();
                 }
-            }
-            else if (k == KeyEvent.VK_E)
-            {
+            } else if (k == KeyEvent.VK_E) {
                 Settings.toggleExplosions();
                 setMessageSettings("Explosions " + (Settings.enabledExplosions() ? enabledMessage : disabledMessage), 480);
-            }
-            else if (k == KeyEvent.VK_H)
-            {
+            } else if (k == KeyEvent.VK_H) {
                 Settings.toggleScoreBubbles();
                 setMessageSettings("Score bubbles " + (Settings.enabledScoreBubbles() ? enabledMessage : disabledMessage), 460);
-            }
-            else if (k == KeyEvent.VK_2)
-            {
+            } else if (k == KeyEvent.VK_2) {
                 Settings.setBackgroundScrolling(true);
                 setMessageSettings("Background scrolling enabled", 425);
-            }
-            else if (k == KeyEvent.VK_3)
-            {
+            } else if (k == KeyEvent.VK_3) {
                 Settings.setBackgroundScrolling(false);
                 setMessageSettings("Background scrolling disabled", 425);
-            }
-            else if (k == KeyEvent.VK_K)
-            {
+            } else if (k == KeyEvent.VK_K) {
                 Settings.decrementPlayerSensitivity();
                 setMessageSettings("Player sensitivity: " + Settings.getPlayerSensitivity(), 485);
-            }
-            else if (k == KeyEvent.VK_L)
-            {
+            } else if (k == KeyEvent.VK_L) {
                 Settings.incrementPlayerSensitivity();
                 setMessageSettings("Player sensitivity: " + Settings.getPlayerSensitivity(), 485);
             }
         }
-        if (showHighScoresMenu)
-        {
-            if (!menuManager.getHighScoresMenu().enteredHighScores() && (k == KeyEvent.VK_ESCAPE || (k == KeyEvent.VK_ENTER)))
-            {
+        if (showHighScoresMenu) {
+            if (!menuManager.getHighScoresMenu().enteredHighScores() && (k == KeyEvent.VK_ESCAPE || (k == KeyEvent.VK_ENTER))) {
                 showHighScoresMenu = false;
-            }
-            else if (menuManager.getHighScoresMenu().enteredHighScores())
-            {
+            } else if (menuManager.getHighScoresMenu().enteredHighScores()) {
                 menuManager.getHighScoresMenu().keyPressed(k);
             }
-        }
-        else if (startMenuMode)
-        {
+        } else if (startMenuMode) {
             if (k == KeyEvent.VK_F1)
                 showHelpDialog = !showHelpDialog;
-            else if (k == KeyEvent.VK_ESCAPE)
-            {
+            else if (k == KeyEvent.VK_ESCAPE) {
                 if (showHelpDialog)
                     showHelpDialog = false;
                 else
                     System.exit(0);
-            }
-            else if (k == KeyEvent.VK_ENTER && showHelpDialog)
+            } else if (k == KeyEvent.VK_ENTER && showHelpDialog)
                 showHelpDialog = false;
-            else
-            {
+            else {
                 menuManager.getStartMenu().keyPressed(k);
 //        if (showHighScoresMenu)
 //        {
 //          highScoresMenu.loadHighScores();
 //        }
             }
-        }
-        else if (isGameOver)
-        {
-            switch(k)
-            {
+        } else if (isGameOver) {
+            switch (k) {
                 case KeyEvent.VK_DOWN:
                     menuManager.getGameOverMenu().incrementChoice();
                     break;
@@ -446,19 +390,15 @@ public class Game
                     menuManager.getGameOverMenu().decrementChoice();
                     break;
                 case KeyEvent.VK_ENTER:
-                    if (menuManager.getGameOverMenu().getChoice() == 2)
-                    {
+                    if (menuManager.getGameOverMenu().getChoice() == 2) {
                         menuManager.getStartMenu().reset();
                         startMenuMode = true;
-                    }
-                    else if (menuManager.getGameOverMenu().getChoice() == 1) //start over
+                    } else if (menuManager.getGameOverMenu().getChoice() == 1) //start over
                     {
                         reset();
-                    }
-                    else if (menuManager.getGameOverMenu().getChoice() == 0) //continue
+                    } else if (menuManager.getGameOverMenu().getChoice() == 0) //continue
                     {
-                        if (continues > 0)
-                        {
+                        if (continues > 0) {
                             music.reset();
                             continues--;
                             newGame();
@@ -467,97 +407,66 @@ public class Game
                     menuManager.getGameOverMenu().reset();
             }
             return;
-        }
-        else if (showHelpDialog)
-        {
+        } else if (showHelpDialog) {
             if (k == KeyEvent.VK_ENTER || k == KeyEvent.VK_ESCAPE || k == KeyEvent.VK_F1)
                 showHelpDialog = false;
-        }
-        else if (k == KeyEvent.VK_LEFT || k == KeyEvent.VK_A)
-        {
-            player.setLeft(true);
-        }
-        else if (k == KeyEvent.VK_RIGHT || k == KeyEvent.VK_D)
-        {
-            player.setRight(true);
-        }
-        else if (k == KeyEvent.VK_R && !initiateNewGameMode)
-        {
-            if (System.nanoTime() - timerManager.getTimer(Timer.MISSILE) > 750000000)
-            {
+        } else if (k == KeyEvent.VK_DOWN || k == KeyEvent.VK_S) {
+            player.setDown(true);
+        } else if (k == KeyEvent.VK_UP || k == KeyEvent.VK_W) {
+            player.setUp(true);
+        } else if (k == KeyEvent.VK_SPACE && !initiateNewGameMode) {
+            if (System.nanoTime() - timerManager.getTimer(Timer.MISSILE) > 750000000) {
                 timerManager.setToSystemNanoTime(Timer.MISSILE);
                 Missile m = new Missile();
                 m.setPosition(player.getx(), player.gety());
                 missiles.add(m);
                 if (Settings.enabledSound()) laserSound.play();
             }
-        }
-        else if (k == KeyEvent.VK_P)
-        {
+        } else if (k == KeyEvent.VK_P) {
             boolean skip = false;
             final long sysTime = System.nanoTime();
-            if (pauseMode && !initiateNewGameMode)
-            {
+            if (pauseMode && !initiateNewGameMode) {
                 timerManager.updateForPauseTimer();
                 player.addToFlinchTimer(sysTime - timerManager.getTimer(Timer.PAUSE));
                 timerManager.setTimer(Timer.PAUSE, 0);
             }
             if (!pauseMode) timerManager.setToSystemNanoTime(Timer.PAUSE);
             if (!initiateNewGameMode) pauseMode = !pauseMode;
-            if (initiateNewGameMode)
-            {
+            if (initiateNewGameMode) {
                 pauseCountDownMode = !pauseCountDownMode;
-                if (pauseCountDownMode)
-                {
-                    countDownNumber = (int)(((System.nanoTime() - timerManager.getTimer(Timer.INITIATE_NEW_GAME))) / 1000000000);
+                if (pauseCountDownMode) {
+                    countDownNumber = (int) (((System.nanoTime() - timerManager.getTimer(Timer.INITIATE_NEW_GAME))) / 1000000000);
                     timerManager.setToSystemNanoTime(Timer.PAUSE_COUNT_DOWN);
                     music.pause();
-                }
-                else
-                {
+                } else {
                     timerManager.setTimer(Timer.INITIATE_NEW_GAME, timerManager.getTimer(Timer.INITIATE_NEW_GAME) + (sysTime - timerManager.getTimer(Timer.PAUSE_COUNT_DOWN)));
                     if (Settings.enabledMusic()) music.cont();
                 }
                 skip = true;
             }
-            if (pauseMode)
-            {
+            if (pauseMode) {
                 music.pause();
                 if (!pauseCountDownMode && skip) music.cont();
-            }
-            else
-            {
+            } else {
                 if (Settings.enabledMusic()) music.cont();
             }
-        }
-        else if (k == KeyEvent.VK_F2)
-        {
+        } else if (k == KeyEvent.VK_F2) {
             reset();
-        }
-        else if (k == KeyEvent.VK_ESCAPE)
-        {
+        } else if (k == KeyEvent.VK_ESCAPE) {
             menuManager.getStartMenu().reset();
             pauseMode = false;
             startMenuMode = true;
-        }
-        else if (k == KeyEvent.VK_8)
-        {
+        } else if (k == KeyEvent.VK_8) {
             cheatMode = true;
             EnemyShip.increaseMoveSpeed();
-        }
-        else if (k == KeyEvent.VK_9)
-        {
+        } else if (k == KeyEvent.VK_9) {
             cheatMode = true;
             EnemyShip.decreaseMoveSpeed();
-        }
-        else if (k == KeyEvent.VK_F1)
-        {
-            if (!isGameOver && !initiateNewGameMode)
-            {
+        } else if (k == KeyEvent.VK_F1) {
+            if (!isGameOver && !initiateNewGameMode) {
                 showHelpDialog = !showHelpDialog;
                 boolean toBeUnpaused = false;
-                if (!pauseMode)
-                {
+                if (!pauseMode) {
                     toBeUnpaused = true;
                     pauseMode = true;
                 }
@@ -565,19 +474,16 @@ public class Game
             }
         }
     }
-    public void keyReleased(final int k)
-    {
-        if (k == KeyEvent.VK_LEFT || k == KeyEvent.VK_A)
-        {
-            player.setLeft(false);
-        }
-        else if (k == KeyEvent.VK_RIGHT || k == KeyEvent.VK_D)
-        {
-            player.setRight(false);
+
+    public void keyReleased(final int k) {
+        if (k == KeyEvent.VK_DOWN || k == KeyEvent.VK_S) {
+            player.setDown(false);
+        } else if (k == KeyEvent.VK_UP || k == KeyEvent.VK_W) {
+            player.setUp(false);
         }
     }
-    private void newGame()
-    {
+
+    private void newGame() {
         missiles.clear();
         enemyMissiles.clear();
         explosions.clear();
@@ -597,14 +503,12 @@ public class Game
         //music.setFramePosition();
         if (Settings.enabledMusic() && !music.isRunning()) music.cont();
     }
-    private void populateBarriers()
-    {
+
+    private void populateBarriers() {
         barriers.clear();
         Rectangle rect;
-        for (int x = 0; x < 4; x++)
-        {
-            for (int y = 0; y < 30; y++)
-            {
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 30; y++) {
                 rect = new Rectangle();
                 rect.setBounds(45 + x * 150 + (y % 15) * 4, 365 + 4 * y / 15, 4, 4);
                 barriers.add(rect);
@@ -612,42 +516,42 @@ public class Game
             timerManager.setToSystemNanoTime(Timer.STRAY_ENEMY);
         }
     }
-    private void populateEnemies()
-    {
+
+    private void populateEnemies() {
         enemies.clear();
         EnemyShip ship;
-        for (int x = 0; x < 12; x++)  //12
-        {
-            for (int y = 0; y < 5; y++)  //5
-            {
-                ship = new EnemyShip(y == 4 ? 3 : y);
-                ship.setPosition(x * 38 + 105, 50 + 40 * y);
+
+        int columns = 5;
+        int rows = 10;
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < columns; x++) {
+                int whichOne = Math.min(y, 3);
+                ship = new EnemyShip(whichOne);
+                ship.setPosition(x * 60 + 430, 50 + 40 * y);
                 enemies.add(ship);
             }
         }
         EnemyShip.setMoveSpeed(EnemyShip.MOVESPEED);
     }
-    private void reset()
-    {
+
+    private void reset() {
         continues = 3; //change back to 3
         player.resetHealth();
         player.resetScoreAndLevel();
         newGame();
     }
-    public static void showHelpDialog()
-    {
+
+    public static void showHelpDialog() {
         showHelpDialog = true;
     }
-    public static void showHighScoresMenu()
-    {
+
+    public static void showHighScoresMenu() {
         showHighScoresMenu = true;
     }
-    public void update()
-    {
-        if (playerExplosionMode)
-        {
-            if (System.nanoTime() - timerManager.getTimer(Timer.PLAYER_EXPLOSION) > 1000000000)
-            {
+
+    public void update() {
+        if (playerExplosionMode) {
+            if (System.nanoTime() - timerManager.getTimer(Timer.PLAYER_EXPLOSION) > 1000000000) {
                 menuManager.getGameOverMenu().setContinues(continues);
                 isGameOver = true;
                 checkForHighScores();
@@ -655,11 +559,9 @@ public class Game
             }
         }
         if (pauseMode) return;
-        if (startMenuMode)
-        {
+        if (startMenuMode) {
             menuManager.getStartMenu().update();
-            if (menuManager.getStartMenu().newGameRequested())
-            {
+            if (menuManager.getStartMenu().newGameRequested()) {
                 startMenuMode = false;
                 reset();
             }
@@ -669,8 +571,7 @@ public class Game
         background.update();
         updateEnemyShipDirection();
         updateDeadEnemiesAndCheckForEnemyInvasion();
-        if (enemies.isEmpty() && !initiateNewGameMode)
-        {
+        if (enemies.isEmpty() && !initiateNewGameMode) {
             initiateNewGameMode = true;
             timerManager.setToSystemNanoTime(Timer.INITIATE_NEW_GAME);
             pauseMode = true;
@@ -680,39 +581,30 @@ public class Game
         updateEnemyShooting();
         updateMissilePositions();
         updateStrayEnemy();
-        for (int i = 0; i < explosions.size(); i++)
-        {
+        for (int i = 0; i < explosions.size(); i++) {
             explosions.get(i).updateFrame();
-            if (explosions.get(i).isDone())
-            {
+            if (explosions.get(i).isDone()) {
                 explosions.remove(i);
                 i--;
             }
         }
-        for (int i = 0; i < scoreBubbles.size(); i++)
-        {
+        for (int i = 0; i < scoreBubbles.size(); i++) {
             scoreBubbles.get(i).update();
-            if (scoreBubbles.get(i).isDone())
-            {
+            if (scoreBubbles.get(i).isDone()) {
                 scoreBubbles.remove(i);
                 i--;
             }
         }
     }
-    private void updateDeadEnemiesAndCheckForEnemyInvasion()
-    {
-        for (int i = 0; i < enemies.size(); i++)
-        {
+
+    private void updateDeadEnemiesAndCheckForEnemyInvasion() {
+        for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update();
-            if (enemies.get(i).isDead())
-            {
+            if (enemies.get(i).isDead()) {
                 enemies.remove(i);
                 i--;
-            }
-            else
-            {
-                if (enemies.get(i).gety() > 362)
-                {
+            } else {
+                if (enemies.get(i).getx() < 0) {
                     isGameOver = true;
                     menuManager.getGameOverMenu().setContinues(continues);
                     checkForHighScores();
@@ -720,32 +612,26 @@ public class Game
             }
         }
     }
-    private void updateEnemyMissileCollisionWithBarriersAndPlayer()
-    {
+
+    private void updateEnemyMissileCollisionWithBarriersAndPlayer() {
         boolean kill = false;
         int object = 0;
-        for (int x = 0; x < enemyMissiles.size(); x++)
-        {
+        for (int x = 0; x < enemyMissiles.size(); x++) {
             kill = false;
-            for (int y = 0; y < barriers.size(); y++)
-            {
-                if (enemyMissiles.get(x).getRectangle().intersects(barriers.get(y)))
-                {
+            for (int y = 0; y < barriers.size(); y++) {
+                if (enemyMissiles.get(x).getRectangle().intersects(barriers.get(y))) {
                     kill = true;
                     object = y;
                 }
             }
-            if (kill)
-            {
+            if (kill) {
                 enemyMissiles.remove(x);
                 barriers.remove(object);
                 continue;
             }
-            if (player.intersects(enemyMissiles.get(x)) && !playerExplosionMode)
-            {
+            if (player.intersects(enemyMissiles.get(x)) && !playerExplosionMode) {
                 player.hit();
-                if (player.getHealth() == -1)
-                {
+                if (player.getHealth() == -1) {
                     Explosion e = new Explosion(ExplosionType.PLAYER);
                     e.setPosition(player.getx(), player.gety());
                     explosions.add(e);
@@ -757,38 +643,31 @@ public class Game
             }
         }
     }
-    private void updateEnemyShipDirection()
-    {
+
+    private void updateEnemyShipDirection() {
         if (enemies.isEmpty()) return;
-        if (!enemies.getFirst().getDownMode())
-        {
-            if (enemies.getFirst().getRight())
-            {
-                if (enemies.get(getDirectionalMostEnemy(Direction.RIGHT)).getx() > 588)
-                {
-                    for (EnemyShip e : enemies)
-                    {
-                        e.setDownMode();
+        if (!enemies.getFirst().getLeftMode()) {
+            if (enemies.getFirst().getUp()) {
+                if (enemies.get(getDirectionalMostEnemy(Direction.UP)).gety() < 20) {
+                    for (EnemyShip e : enemies) {
+                        e.setLeftMode();
                     }
-                };
-            }
-            else
-            {
-                if (enemies.get(getDirectionalMostEnemy(Direction.LEFT)).getx() < 14)
-                {
-                    for (EnemyShip e : enemies)
-                    {
-                        e.setDownMode();
+                }
+                ;
+            } else {
+                if (enemies.get(getDirectionalMostEnemy(Direction.DOWN)).gety() > 100) {
+                    for (EnemyShip e : enemies) {
+                        e.setLeftMode();
                     }
-                };
+                }
+                ;
             }
         }
         EnemyShip.updateFrame();
     }
-    private void updateEnemyShooting()
-    {
-        if (System.nanoTime() - timerManager.getTimer(Timer.ENEMY_MISSILE) > timePassBetweenEnemyShooting && !enemies.isEmpty())
-        {
+
+    private void updateEnemyShooting() {
+        if (System.nanoTime() - timerManager.getTimer(Timer.ENEMY_MISSILE) > timePassBetweenEnemyShooting && !enemies.isEmpty()) {
             timerManager.setToSystemNanoTime(Timer.ENEMY_MISSILE);
             Point point = getClosestBottomMostEnemyPoint();
             Missile m = new Missile();
@@ -797,44 +676,36 @@ public class Game
             if (Settings.enabledSound()) enemyLaserSound.play();
         }
     }
-    private void updateMissilePositions()
-    {
-        for (int x = 0; x < missiles.size(); x++)
-        {
+
+    private void updateMissilePositions() {
+        for (int x = 0; x < missiles.size(); x++) {
             missiles.get(x).setPosition(missiles.get(x).getx(), missiles.get(x).gety() - 3);
             if (missiles.get(x).gety() < 0) missiles.remove(x);
         }
-        for (int x = 0; x < enemyMissiles.size(); x++)
-        {
+        for (int x = 0; x < enemyMissiles.size(); x++) {
             enemyMissiles.get(x).setPosition(enemyMissiles.get(x).getx(), enemyMissiles.get(x).gety() + 3);
             if (enemyMissiles.get(x).gety() > GamePanel.HEIGHT) enemyMissiles.remove(x);
         }
     }
-    private void updatePlayerMissileCollisionWithBarriersAndEnemies()
-    {
+
+    private void updatePlayerMissileCollisionWithBarriersAndEnemies() {
         boolean destroy = false;
         int object = 0;
-        for (int x = 0; x < missiles.size(); x++)
-        {
+        for (int x = 0; x < missiles.size(); x++) {
             destroy = false;
-            for (int y = 0; y < barriers.size(); y++)
-            {
-                if (missiles.get(x).getRectangle().intersects(barriers.get(y)))
-                {
+            for (int y = 0; y < barriers.size(); y++) {
+                if (missiles.get(x).getRectangle().intersects(barriers.get(y))) {
                     destroy = true;
                     object = y;
                 }
             }
-            if (destroy)
-            {
+            if (destroy) {
                 missiles.remove(x);
                 barriers.remove(object);
                 continue;
             }
-            for (int y = 0; y < enemies.size(); y++)
-            {
-                if (missiles.get(x).intersects(enemies.get(y)))
-                {
+            for (int y = 0; y < enemies.size(); y++) {
+                if (missiles.get(x).intersects(enemies.get(y))) {
                     destroy = true;
                     object = y;
                     Explosion e = new Explosion(ExplosionType.MOST);
@@ -843,8 +714,7 @@ public class Game
                     if (Settings.enabledSound()) explosionSound.play();
                 }
             }
-            if (destroy)
-            {
+            if (destroy) {
                 int score = enemies.get(object).getPoints(player.getLevel());
                 ScoreBubble sb = new ScoreBubble(score);
                 sb.setPosition(enemies.get(object).getx() + 10, enemies.get(object).gety());
@@ -857,26 +727,23 @@ public class Game
             }
         }
     }
-    private void updateStrayEnemy()
-    {
-        if ((System.nanoTime() - timerManager.getTimer(Timer.STRAY_ENEMY)) / 1000 > 20000000)
-        {
+
+    private void updateStrayEnemy() {
+        if ((System.nanoTime() - timerManager.getTimer(Timer.STRAY_ENEMY)) / 1000 > 20000000) {
             timerManager.setToSystemNanoTime(Timer.STRAY_ENEMY);
             strayEnemy = new EnemyShip(-1);
             int position = strayEnemyFromLeft ? -20 : GamePanel.WIDTH + 20;
             strayEnemyFromLeft = !strayEnemyFromLeft;
-            if (strayEnemyFromLeft) strayEnemy.setLeft(); else strayEnemy.setRight();
+            if (strayEnemyFromLeft) {
+                strayEnemy.setDown();
+            } else strayEnemy.setUp();
             strayEnemy.setPosition(position, 20);
             strayEnemyMode = true;
-        }
-        else if (strayEnemyMode)
-        {
+        } else if (strayEnemyMode) {
             strayEnemy.update();
             if (strayEnemy.getx() > GamePanel.WIDTH + 20 || strayEnemy.getx() < -20) strayEnemyMode = false;
-            for (int x = 0; x < missiles.size(); x++)
-            {
-                if (missiles.get(x).intersects(strayEnemy))
-                {
+            for (int x = 0; x < missiles.size(); x++) {
+                if (missiles.get(x).intersects(strayEnemy)) {
                     int score = strayEnemy.getPoints(player.getLevel());
                     strayEnemy.kill();
                     if (!cheatMode) player.incrementScore(score);

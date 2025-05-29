@@ -6,9 +6,9 @@ import java.awt.image.BufferedImage;
 public class EnemyShip extends Entity
 {
     private boolean dead;
-    private boolean downMode;
+    private boolean leftMode;
     private int whichOne;
-    private int downModeCounter;
+    private int leftModeCounter;
     private static BufferedImage[][] enemyShipSprites = new BufferedImage[4][10];
     private static BufferedImage[] strayEnemySprites = new BufferedImage[3];
     private static boolean enemyFrameDirectionForward = true;
@@ -25,7 +25,7 @@ public class EnemyShip extends Entity
         cwidth = 25;
         cheight = 30;
         this.whichOne = whichOne;
-        right = true;
+        down = true;
     }
     public static void decreaseMoveSpeed()
     {
@@ -41,65 +41,59 @@ public class EnemyShip extends Entity
             image = getEnemyShipSprites(whichOne)[enemyFrameCounter];
         g.drawImage(image, (int)(x - width / 2), (int)(y - height / 2), null);
     }
-    public boolean getDownMode()
+    public boolean getLeftMode()
     {
-        return downMode;
+        return leftMode;
     }
     public static BufferedImage[] getEnemyShipSprites(final int which)
     {
         if (which == -1) return strayEnemySprites;
         return enemyShipSprites[which];
     }
-    public boolean getLeft()
+    public boolean getDown()
     {
-        return left;
+        return down;
     }
     public static double getMoveSpeed()
     {
         return moveSpeedForMostShips;
     }
-    private void getNextPosition()
-    {
+    private void getNextPosition() {
         double moveSpeed = whichOne == -1 ? MOVESPEEDFORSTRAYSHIP : moveSpeedForMostShips;
-        if (downMode)
-        {
-            downModeCounter++;
-            if (downModeCounter == 6)
-            {
-                downModeCounter = 0;
-                downMode = false;
-                if (left)
-                {
-                    left = false;
-                    right = true;
-                }
-                else
-                {
-                    left = true;
-                    right = false;
+
+        if (leftMode) {
+            leftModeCounter++;
+            if (leftModeCounter == 6) {
+                leftModeCounter = 0;
+                leftMode = false;
+                if (up) {
+                    up = false;
+                    down = true;
+                } else {
+                    up = true;
+                    down = false;
                 }
                 return;
             }
-            y += 2;
+            x -= 2;
             return;
         }
-        else if (left)
-        {
-            x -= moveSpeed;
+
+        if (up) {
+            y -= moveSpeed;
+        } else if (down) {
+            y += moveSpeed;
         }
-        else if (right)
-        {
-            x += moveSpeed;
-        }
+
     }
     public int getPoints(final int level)
     {
         if (whichOne == -1) return 170 + 30 * level;
         return (10 + level * 5) * (4 - whichOne);
     }
-    public boolean getRight()
+    public boolean getUp()
     {
-        return right;
+        return up;
     }
     public static void increaseMoveSpeed()
     {
@@ -113,9 +107,9 @@ public class EnemyShip extends Entity
     {
         dead = true;
     }
-    public void setDownMode()
+    public void setLeftMode()
     {
-        downMode = true;
+        leftMode = true;
     }
     public static void setEnemyShipSprites(final int whichOne, final BufferedImage[] sprites)
     {
@@ -124,19 +118,19 @@ public class EnemyShip extends Entity
         else
             enemyShipSprites[whichOne] = sprites;
     }
-    public void setLeft()
+    public void setDown()
     {
-        left = true;
-        right = false;
+        down = true;
+        up = false;
     }
     public static void setMoveSpeed(final double ms)
     {
         moveSpeedForMostShips = ms;
     }
-    public void setRight()
+    public void setUp()
     {
-        right = true;
-        left = false;
+        up = true;
+        down = false;
     }
     public void update()
     {

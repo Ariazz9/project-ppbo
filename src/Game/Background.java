@@ -26,24 +26,14 @@ public class Background
     }
     public void draw(final Graphics2D g)
     {
-        final BufferedImage bi;
-        if (Settings.enabledBackground()) bi = image; else bi = black;
-        g.drawImage(bi, (int)x, (int)y, null);
-        if (x < 0)
-        {
-            g.drawImage(bi, (int)x + bi.getWidth(), (int)y, null);
-        }
-        else if (x > 0)
-        {
-            g.drawImage(bi, (int)x - bi.getWidth(), (int)y, null);
-        }
-        if (y < 0)
-        {
-            g.drawImage(bi, (int)x, (int)y + bi.getHeight(), null);
-        }
-        else if (y > 0)
-        {
-            g.drawImage(bi, (int)x, (int)y - bi.getHeight(), null);
+        final BufferedImage bi = Settings.enabledBackground() ? image : black;
+
+        g.drawImage(bi, (int)x, 0, null);
+
+        g.drawImage(bi, (int)x + bi.getWidth(), 0, null);
+
+        if (x <= -bi.getWidth()) {
+            x = 0;
         }
     }
     public static void setBlackImage(final BufferedImage image)
@@ -63,8 +53,9 @@ public class Background
             dy = 0;
         }
         x += dx;
-        y += dy;
-        if (x > image.getWidth() || x < -image.getWidth()) x = 0;
-        if (y > image.getHeight() || y < -image.getHeight()) y = 0;
+        // reset horizontal scroll
+        if (x <= -image.getWidth()) {
+            x = 0;
+        }
     }
 }

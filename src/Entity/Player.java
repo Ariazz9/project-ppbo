@@ -48,15 +48,15 @@ public class Player extends Entity
     }
     private void getNextPosition()
     {
-        if (left)
+        if (down)
         {
-            x -= Settings.getPlayerSensitivity();
-            if (x < 10) x = 10;
+            y += Settings.getPlayerSensitivity();
+            if (y > 650) y = 650;
         }
-        else if (right)
+        else if (up)
         {
-            x += Settings.getPlayerSensitivity();
-            if (x > 590) x = 590;
+            y -= Settings.getPlayerSensitivity();
+            if (y < 210) y = 210;
         }
     }
     public static BufferedImage getPlayerSprite()

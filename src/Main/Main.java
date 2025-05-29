@@ -8,8 +8,6 @@ import java.util.Objects;
  * make default background image static?
  */
 
-
-
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
@@ -71,6 +69,7 @@ public class Main
             sprites = new BufferedImage[25];
             spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_stray.gif")));
             for (int i = 0; i < sprites.length; i++)
+
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
