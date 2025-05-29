@@ -17,7 +17,7 @@ public class Background
         this.dy = originaldy = dy;
         try
         {
-            image = ImageIO.read(getClass().getResourceAsStream(s));
+            image = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/space.jpg"));
         }
         catch(final Exception e)
         {

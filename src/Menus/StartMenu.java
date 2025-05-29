@@ -19,14 +19,14 @@ public class StartMenu
     private final Font font = new Font("Arial", Font.PLAIN, 24);
     private int currentChoice;
     private boolean newGame;
-    private static final int HORIZONTALOFFSET = 80;
-    private static final int VERTICALOFFSET = 15;
+    private static final int HORIZONTALOFFSET = 125;
+    private static final int VERTICALOFFSET = -15;
     public StartMenu()
     {
         try
         {
-            bg = new Background("/Backgrounds/titlescreenbackground.png", -0.4, 0);
-            spaceInvadersTitle = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/titlescreen.png"));
+            bg = new Background("/Backgrounds/titlescreenbackground.jpg", -0.4, 0);
+//            spaceInvadersTitle = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/titlescreen.jpg"));
         }
         catch(Exception e)
         {

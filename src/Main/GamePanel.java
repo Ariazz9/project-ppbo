@@ -12,12 +12,12 @@ import Game.Game;
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel implements Runnable, KeyListener
 {
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 440;
+    public static final int WIDTH = 720;
+    public static final int HEIGHT = 480;
 
     //game thread
     private Thread thread;
-    private static final int FPS = 60;
+    private static final int FPS = 30;
     private static final long targetTime = 1000000000 / FPS;
 
     //image

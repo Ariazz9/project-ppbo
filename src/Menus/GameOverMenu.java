@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -22,7 +23,7 @@ public class GameOverMenu
     {
         try
         {
-            gameOverImage = ImageIO.read(getClass().getResourceAsStream("/Backgrounds/game_over.jpg"));
+//            gameOverImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Backgrounds/game_over.jpg")));
         }
         catch (final Exception e)
         {

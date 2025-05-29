@@ -179,13 +179,8 @@ public class Game
                 newGame();
             }
         }
-//    if (player.isDead())
-//    {
-//      bgMusic.stop();
-//    }
-        for (int i = 0; i < enemies.size(); i++)
-        {
-            enemies.get(i).draw(g);
+        for (EnemyShip enemyShip : enemies) {
+            enemyShip.draw(g);
         }
         if (Settings.enabledExplosions())
         {
@@ -206,29 +201,25 @@ public class Game
             if (!strayEnemy.isDead()) strayEnemy.draw(g);
         }
         g.setColor(Color.RED);
-        if (barriers.size() > 0)  //concurrent modification error, added this, hopefully goes away
+        if (!barriers.isEmpty())  //concurrent modification error, added this, hopefully goes away
         {
             for (Rectangle b : barriers)
             {
                 g.draw(b);
             }
         }
-        for (int x = 0; x < missiles.size(); x++)
-        {
-            g.drawImage(Missile.getMissileSprite(), (int)(missiles.get(x).getx() - missiles.get(x).getWidth() / 2), (int)(missiles.get(x).gety() - missiles.get(x).getHeight() / 2), null);
-/////
-//      g.draw(missiles.get(x).getRectangle());
+        for (Missile missile : missiles) {
+            g.drawImage(Missile.getMissileSprite(), (int) (missile.getx() - missile.getWidth() / 2), (int) (missile.gety() - missile.getHeight() / 2), null);
+            g.draw(missile.getRectangle());
 
         }
-        for (int x = 0; x < enemyMissiles.size(); x++)
-        {
-            g.drawImage(Missile.getEnemyMissileSprite(), (int)(enemyMissiles.get(x).getx() - enemyMissiles.get(x).getWidth() / 2), (int)(enemyMissiles.get(x).gety() - enemyMissiles.get(x).getHeight() / 2), null);
-//      g.draw(enemyMissiles.get(x).getRectangle());
+        for (Missile enemyMissile : enemyMissiles) {
+            g.drawImage(Missile.getEnemyMissileSprite(), (int) (enemyMissile.getx() - enemyMissile.getWidth() / 2), (int) (enemyMissile.gety() - enemyMissile.getHeight() / 2), null);
+            g.draw(enemyMissile.getRectangle());
         }
-//    for (int x = 0; x < enemies.size(); x++)
-//    {
-//      g.draw(enemies.get(x).getRectangle());
-//    }
+        for (EnemyShip enemy : enemies) {
+            g.draw(enemy.getRectangle());
+        }
         hud.draw(g);
         drawMessage(g);
         if (player.getFlinching() && !isGameOver && !pauseMode)
@@ -242,7 +233,9 @@ public class Game
         else
         {
             if (!playerExplosionMode) drawPlayerSprite(g);
-//      g.draw(player.getRectangle());
+            else {
+                g.draw(player.getRectangle());
+            }
         }
         if (isGameOver)
         {
@@ -286,14 +279,11 @@ public class Game
     {
         Point point;
         bottomEnemyPoints.clear();
-        for (int x = 0; x < enemies.size(); x++)
-        {
-            point = new Point((int)enemies.get(x).getx(), (int)enemies.get(x).gety());
+        for (EnemyShip enemy : enemies) {
+            point = new Point((int) enemy.getx(), (int) enemy.gety());
             bottomEnemyPoints.add(point);
-            for (int y = 0; y < bottomEnemyPoints.size(); y++)
-            {
-                if (point.getX() == bottomEnemyPoints.get(y).getX() && point.getY() > bottomEnemyPoints.get(y).getY())
-                {
+            for (int y = 0; y < bottomEnemyPoints.size(); y++) {
+                if (point.getX() == bottomEnemyPoints.get(y).getX() && point.getY() > bottomEnemyPoints.get(y).getY()) {
                     bottomEnemyPoints.remove(y);
                     y--;
                 }
@@ -316,16 +306,11 @@ public class Game
     private int getDirectionalMostEnemy(final Direction direction)
     {
         int ship = 0;
-        double position = 0;
-        switch(direction)
-        {
-            case LEFT:
-                position = 700;
-                break;
-            case RIGHT:
-                position = 0;
-                break;
-        }
+        double position = switch (direction) {
+            case LEFT -> 700;
+            case RIGHT -> 100;
+            default -> 0;
+        };
         for (int x = 0; x < enemies.size(); x++)
         {
             switch(direction)
@@ -666,7 +651,7 @@ public class Game
                 menuManager.getGameOverMenu().setContinues(continues);
                 isGameOver = true;
                 checkForHighScores();
-//        playerExplosionMode = false;
+                playerExplosionMode = false;
             }
         }
         if (pauseMode) return;
@@ -684,7 +669,7 @@ public class Game
         background.update();
         updateEnemyShipDirection();
         updateDeadEnemiesAndCheckForEnemyInvasion();
-        if (enemies.size() == 0 && !initiateNewGameMode)
+        if (enemies.isEmpty() && !initiateNewGameMode)
         {
             initiateNewGameMode = true;
             timerManager.setToSystemNanoTime(Timer.INITIATE_NEW_GAME);
@@ -774,10 +759,10 @@ public class Game
     }
     private void updateEnemyShipDirection()
     {
-        if (enemies.size() == 0) return;
-        if (!enemies.get(0).getDownMode())
+        if (enemies.isEmpty()) return;
+        if (!enemies.getFirst().getDownMode())
         {
-            if (enemies.get(0).getRight())
+            if (enemies.getFirst().getRight())
             {
                 if (enemies.get(getDirectionalMostEnemy(Direction.RIGHT)).getx() > 588)
                 {
@@ -802,7 +787,7 @@ public class Game
     }
     private void updateEnemyShooting()
     {
-        if (System.nanoTime() - timerManager.getTimer(Timer.ENEMY_MISSILE) > timePassBetweenEnemyShooting && enemies.size() > 0)
+        if (System.nanoTime() - timerManager.getTimer(Timer.ENEMY_MISSILE) > timePassBetweenEnemyShooting && !enemies.isEmpty())
         {
             timerManager.setToSystemNanoTime(Timer.ENEMY_MISSILE);
             Point point = getClosestBottomMostEnemyPoint();

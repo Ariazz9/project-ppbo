@@ -1,5 +1,6 @@
 package Main;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 /*
  * need to do:
  * explosion animation
@@ -37,13 +38,13 @@ public class Main
     {
         try
         {
-            BufferedImage spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Weapons/missile.png"));
+            BufferedImage spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Weapons/missile.png")));
             Missile.setMissileSprite(spritesheet.getSubimage(0, 0, 3, 15));
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Weapons/missile_enemy.png"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Weapons/missile_enemy.png")));
             Missile.setEnemyMissileSprite(spritesheet.getSubimage(0, 0, 3, 15));
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Player/player.png"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Player/player.png")));
             Player.setPlayerSprite(spritesheet.getSubimage(0, 0, 35, 35));
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Enemies/enemy_ships.png"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Enemies/enemy_ships.png")));
             BufferedImage sprites[];
             for (int x = 0; x < 4; x++)
             {
@@ -61,27 +62,26 @@ public class Main
             }
             EnemyShip.setEnemyShipSprites(-1, sprites);
             sprites = new BufferedImage[7];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion.gif"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Explosions/explosion.gif")));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
             Explosion.setExplosionShipSprites(sprites);
             sprites = new BufferedImage[25];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_stray.gif"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_stray.gif")));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
             Explosion.setExplosionStraySprites(sprites);
             sprites = new BufferedImage[14];
-            spritesheet = ImageIO.read(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_player.gif"));
+            spritesheet = ImageIO.read(Objects.requireNonNull(Main.class.getResourceAsStream("/Sprites/Explosions/explosion_player.gif")));
             for (int i = 0; i < sprites.length; i++)
             {
                 sprites[i] = spritesheet.getSubimage(i * 30, 0, 30, 30);
             }
             Explosion.setExplosionPlayerSprites(sprites);
-            Background.setBlackImage(ImageIO.read(Main.class.getResourceAsStream("/Backgrounds/black.jpg")));
         }
         catch (final Exception e)
         {
