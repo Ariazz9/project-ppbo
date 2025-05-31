@@ -51,12 +51,12 @@ public class Player extends Entity
         if (down)
         {
             y += Settings.getPlayerSensitivity();
-            if (y > 650) y = 650;
+            if (y > 440) y = 440;
         }
         else if (up)
         {
             y -= Settings.getPlayerSensitivity();
-            if (y < 210) y = 210;
+            if (y < 0) y = 0;
         }
     }
     public static BufferedImage getPlayerSprite()

@@ -261,8 +261,8 @@ public class Game {
         BufferedImage rotatedSprite = op.filter(sprite, null);
 
         // Gambar sprite yang sudah diputar di posisi yang normal
-        g.drawImage(rotatedSprite, (int)(player.getx() - rotatedSprite.getWidth() - 205),
-                (int)(player.gety() - rotatedSprite.getHeight() - 175), null);
+        g.drawImage(rotatedSprite, (int)(player.getx()),
+                (int)(player.gety()), null);
     }
 
 
@@ -415,10 +415,10 @@ public class Game {
         } else if (k == KeyEvent.VK_UP || k == KeyEvent.VK_W) {
             player.setUp(true);
         } else if (k == KeyEvent.VK_SPACE && !initiateNewGameMode) {
-            if (System.nanoTime() - timerManager.getTimer(Timer.MISSILE) > 750000000) {
+            if (System.nanoTime() - timerManager.getTimer(Timer.MISSILE) > 350000000) {
                 timerManager.setToSystemNanoTime(Timer.MISSILE);
                 Missile m = new Missile();
-                m.setPosition(player.getx(), player.gety());
+                m.setPosition(player.getx() + 5, player.gety() + 22);
                 missiles.add(m);
                 if (Settings.enabledSound()) laserSound.play();
             }
@@ -489,7 +489,7 @@ public class Game {
         explosions.clear();
         scoreBubbles.clear();
         player.resetHealth();
-        player.setPosition(300, 425);
+        player.setPosition(60, 210);
         isGameOver = pauseMode = cheatMode = strayEnemyMode
                 = initiateNewGameMode = showHelpDialog = playerExplosionMode = false;
         populateEnemies();
@@ -507,10 +507,10 @@ public class Game {
     private void populateBarriers() {
         barriers.clear();
         Rectangle rect;
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 30; y++) {
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 40; y++) {
                 rect = new Rectangle();
-                rect.setBounds(45 + x * 150 + (y % 15) * 4, 365 + 4 * y / 15, 4, 4);
+                rect.setBounds(140 + 4 * y / 15,50 + x * 150 + (y % 20) * 4 , 4, 4);
                 barriers.add(rect);
             }
             timerManager.setToSystemNanoTime(Timer.STRAY_ENEMY);
@@ -679,14 +679,18 @@ public class Game {
 
     private void updateMissilePositions() {
         for (int x = 0; x < missiles.size(); x++) {
-            missiles.get(x).setPosition(missiles.get(x).getx(), missiles.get(x).gety() - 3);
-            if (missiles.get(x).gety() < 0) missiles.remove(x);
+            Missile m = missiles.get(x);
+            m.setPosition(m.getx() + 3, m.gety());
+            if (m.getx() > GamePanel.WIDTH) missiles.remove(x);
         }
+
         for (int x = 0; x < enemyMissiles.size(); x++) {
-            enemyMissiles.get(x).setPosition(enemyMissiles.get(x).getx(), enemyMissiles.get(x).gety() + 3);
-            if (enemyMissiles.get(x).gety() > GamePanel.HEIGHT) enemyMissiles.remove(x);
+            Missile m = enemyMissiles.get(x);
+            m.setPosition(m.getx() - 3, m.gety());
+            if (m.getx() < 0) enemyMissiles.remove(x);
         }
     }
+
 
     private void updatePlayerMissileCollisionWithBarriersAndEnemies() {
         boolean destroy = false;

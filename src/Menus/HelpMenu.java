@@ -16,9 +16,9 @@ public class HelpMenu
     private static final int VERTICALOFFSET = 15;
     public HelpMenu()
     {
-        string[0] = "A/Left arrow = move left";
-        string[1] = "D/Right arrow = move right";
-        string[2] = "R = shoot";
+        string[0] = "S/Down arrow = move down";
+        string[1] = "W/Up arrow = move up";
+        string[2] = "space = shoot";
         string[3] = "B = toggle background";
         string[4] = "S = toggle sound";
         string[5] = "M = toggle music";

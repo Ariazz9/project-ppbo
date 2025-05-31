@@ -8,10 +8,10 @@ public class Missile extends Entity
     private static BufferedImage enemyMissileSprite;
     public Missile()
     {
-        width = 3;
-        height = 20;
-        cwidth = 3;
-        cheight = 14;
+        width = 20;
+        height = 3;
+        cwidth = 14;
+        cheight = 3;
     }
     public static BufferedImage getEnemyMissileSprite()
     {
