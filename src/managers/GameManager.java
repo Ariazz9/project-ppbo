@@ -19,9 +19,10 @@ public class GameManager {
     private double enemySpeedMultiplier;
     private int currentLevelEnemyCount;
 
-    public GameManager() {
+
+    public GameManager(int level) {
         this.score = 0;
-        this.level = 1;
+        this.level = level;
         this.enemySpawnTimer = 0;
         this.enemySpawnRate = 120; // Spawn enemy every 2 seconds at 60 FPS
         this.random = new Random();
@@ -68,12 +69,11 @@ public class GameManager {
     }
 
     private void spawnEnemy(List<Enemy> enemies, int screenWidth, int screenHeight) {
-        double x = screenWidth;
         double y = random.nextInt(screenHeight - 50) + 25;
-        enemies.add(new Enemy(x, y, level));
+        enemies.add(new Enemy(screenWidth, y, level));
     }
 
-    private void updateLevel(List<Enemy> enemies) {
+    public void updateLevel(List<Enemy> enemies) {
         // Check if all enemies for current level have been spawned and destroyed
         if (currentLevelEnemyCount >= maxEnemiesPerLevel && enemies.isEmpty()) {
             level++;

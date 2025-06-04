@@ -26,7 +26,7 @@ public class Enemy extends GameObject {
     private int level;
 
     public Enemy(double x, double y, int level) {
-        super(x, y, 35, 25, Color.RED);
+        super(x, y, 60, 40, Color.RED);
         this.shootTimer = 0;
         this.scoreValue = 10;
         this.random = new Random();

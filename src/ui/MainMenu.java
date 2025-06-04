@@ -141,7 +141,7 @@ public class MainMenu extends JPanel implements KeyListener, ActionListener {
      * Draw game title with glow effect
      */
     private void drawTitle(Graphics2D g2d) {
-        String title = "SPACE SHOOTER";
+        String title = "Earth Counter 99";
         g2d.setFont(titleFont);
 
         FontMetrics fm = g2d.getFontMetrics();

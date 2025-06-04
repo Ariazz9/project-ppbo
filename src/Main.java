@@ -39,7 +39,7 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     private static final String LEVEL_TRANSITION_PANEL = "LEVEL_TRANSITION_PANEL";
 
     public Main() {
-        setTitle("Space Shooter - Enhanced Edition");
+        setTitle("Earth Counter 99 - Enhanced Edition");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 

@@ -21,7 +21,7 @@ public class Player extends GameObject {
     private boolean useSprite = false;
 
     public Player(double x, double y) {
-        super(x, y, 40, 30, Color.CYAN);
+        super(x, y, 60, 40, Color.CYAN);
         this.health = MAX_HEALTH;
         this.shootTimer = 0;
 
@@ -150,6 +150,14 @@ public class Player extends GameObject {
     public int getHealth() {
         return health;
     }
+
+    public void resetState() {
+        this.setVelocityX(0);
+        this.setVelocityY(0);
+        this.setX(50);
+        this.setY(300);
+    }
+
 
     public void setHealthToMax() {
         this.health = MAX_HEALTH;

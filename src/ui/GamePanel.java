@@ -60,7 +60,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         enemyBullets = new ArrayList<>();
-        gameManager = new GameManager();
+        gameManager = new GameManager(currentDisplayedLevel);
         hud = new HUD();
 
         starField = new BackgroundStarField(120);
@@ -74,12 +74,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     public void startGame() {
         // Reset game state
-        player.setHealthToMax();
         enemies.clear();
         bullets.clear();
         enemyBullets.clear();
-        gameManager = new GameManager();
-        currentDisplayedLevel = 1;
+        gameManager = new GameManager(currentDisplayedLevel);
 
         timer.start();
     }
@@ -131,6 +129,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
             // Resume game after a short delay
             Timer resumeTimer = new Timer(3000, e -> {
+                player.resetState();
+                clearKeys();
                 timer.start();
                 ((Timer) e.getSource()).stop();
             });
@@ -300,6 +300,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
 
         hud.render(g, gameManager.getScore(), gameManager.getLevel(), player.getHealth());
+    }
+
+    private void clearKeys() {
+        for (int i = 0; i < keys.length; i++) {
+            keys[i] = false;
+        }
     }
 
     @Override
