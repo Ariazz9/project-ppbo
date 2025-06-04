@@ -1,6 +1,9 @@
 package entities;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 /**
  * Player class inheriting from GameObject
@@ -14,10 +17,30 @@ public class Player extends GameObject {
     private int health;
     private int shootTimer;
 
+    private BufferedImage sprite;
+    private boolean useSprite = false;
+
     public Player(double x, double y) {
         super(x, y, 40, 30, Color.CYAN);
         this.health = MAX_HEALTH;
         this.shootTimer = 0;
+
+        // Try to load player sprite
+        loadSprite();
+    }
+
+    /**
+     * Load player sprite from assets, fallback to rectangle if not found
+     */
+    private void loadSprite() {
+        try {
+            sprite = ImageIO.read(getClass().getResourceAsStream("/assets/sprites/player.png"));
+            useSprite = true;
+            System.out.println("Player sprite loaded successfully");
+        } catch (Exception e) {
+            useSprite = false;
+            System.out.println("Player sprite not found, using rectangle rendering");
+        }
     }
 
     @Override
@@ -44,14 +67,52 @@ public class Player extends GameObject {
 
     @Override
     public void render(Graphics g) {
-        g.setColor(color);
-        g.fillRect((int)x, (int)y, (int)width, (int)height);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Draw spaceship details
-        g.setColor(Color.WHITE);
-        int[] xPoints = {(int)(x + width), (int)(x + width - 10), (int)(x + width)};
-        int[] yPoints = {(int)(y + height/2), (int)(y), (int)(y + height)};
-        g.fillPolygon(xPoints, yPoints, 3);
+        if (useSprite && sprite != null) {
+            // Render sprite
+            g2d.drawImage(sprite, (int)x, (int)y, (int)width, (int)height, null);
+        } else {
+            // Fallback to enhanced rectangle rendering
+            // Main body
+            g2d.setColor(Color.CYAN);
+            g2d.fillRect((int)x, (int)y, (int)width, (int)height);
+
+            // Cockpit
+            g2d.setColor(Color.BLUE);
+            g2d.fillRect((int)(x + width * 0.6), (int)(y + height * 0.3),
+                    (int)(width * 0.3), (int)(height * 0.4));
+
+            // Wings
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fillRect((int)(x + width * 0.2), (int)(y - 5),
+                    (int)(width * 0.4), 5);
+            g2d.fillRect((int)(x + width * 0.2), (int)(y + height),
+                    (int)(width * 0.4), 5);
+
+            // Engine glow
+            g2d.setColor(Color.ORANGE);
+            g2d.fillOval((int)(x - 8), (int)(y + height * 0.3),
+                    8, (int)(height * 0.4));
+            g2d.setColor(Color.YELLOW);
+            g2d.fillOval((int)(x - 6), (int)(y + height * 0.35),
+                    6, (int)(height * 0.3));
+
+            // Nose cone
+            g2d.setColor(Color.WHITE);
+            int[] xPoints = {(int)(x + width), (int)(x + width - 10), (int)(x + width)};
+            int[] yPoints = {(int)(y + height/2), (int)(y), (int)(y + height)};
+            g2d.fillPolygon(xPoints, yPoints, 3);
+        }
+
+        // Health indicator (small bar above player) - always show regardless of sprite
+        if (health < MAX_HEALTH) {
+            g2d.setColor(Color.RED);
+            g2d.fillRect((int)x, (int)(y - 8), (int)width, 3);
+            g2d.setColor(Color.GREEN);
+            g2d.fillRect((int)x, (int)(y - 8), (int)(width * health / MAX_HEALTH), 3);
+        }
     }
 
     // Movement methods
@@ -88,5 +149,9 @@ public class Player extends GameObject {
 
     public int getHealth() {
         return health;
+    }
+
+    public void setHealthToMax() {
+        this.health = MAX_HEALTH;
     }
 }

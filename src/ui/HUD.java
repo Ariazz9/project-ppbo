@@ -18,8 +18,10 @@ public class HUD {
         // Draw score
         g.drawString("Score: " + score, 10, 25);
 
-        // Draw level
-        g.drawString("Level: " + level, 10, 50);
+        // Draw level with cycle information
+        int cycleLevel = ((level - 1) % 5) + 1;
+        int tier = (level - 1) / 5 + 1;
+        g.drawString("Level: " + level + " (Tier " + tier + "-" + cycleLevel + ")", 10, 50);
 
         // Draw health bar
         g.drawString("Health: ", 10, 75);
@@ -27,6 +29,15 @@ public class HUD {
         g.fillRect(80, 60, health * 2, 15);
         g.setColor(Color.WHITE);
         g.drawRect(80, 60, 200, 15);
+
+        // Draw level progression info
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Arial", Font.PLAIN, 12));
+        if (cycleLevel == 5) {
+            g.drawString("Next: Tier " + (tier + 1) + " (Stronger bullets!)", 10, 100);
+        } else {
+            g.drawString("Next: More enemies & faster speed", 10, 100);
+        }
 
         // Instructions
         g.setColor(Color.LIGHT_GRAY);

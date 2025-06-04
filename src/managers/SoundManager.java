@@ -24,6 +24,7 @@ public class SoundManager {
     public static final String BACKGROUND_MUSIC = "background_music";
     public static final String MENU_HOVER = "menu_hover";
     public static final String MENU_SELECT = "menu_select";
+    public static final String MENU_CLICK = "menu_click";
 
     private SoundManager() {
         soundClips = new HashMap<>();
@@ -52,6 +53,7 @@ public class SoundManager {
             loadSound(BACKGROUND_MUSIC, "/assets/sounds/background_music.wav");
             loadSound(MENU_HOVER, "/assets/sounds/menu_hover.wav");
             loadSound(MENU_SELECT, "/assets/sounds/menu_select.wav");
+            loadSound(MENU_CLICK, "/assets/sounds/menu_click.wav");
         } catch (Exception e) {
             System.err.println("Warning: Could not load some audio files. Creating silent clips.");
             createSilentClips();
@@ -88,7 +90,7 @@ public class SoundManager {
      * Create silent clips for all sounds as fallback
      */
     private void createSilentClips() {
-        String[] soundNames = {PLAYER_SHOOT, ENEMY_EXPLOSION, BACKGROUND_MUSIC, MENU_HOVER, MENU_SELECT};
+        String[] soundNames = {PLAYER_SHOOT, ENEMY_EXPLOSION, BACKGROUND_MUSIC, MENU_HOVER, MENU_SELECT, MENU_CLICK};
         for (String soundName : soundNames) {
             createSilentClip(soundName);
         }

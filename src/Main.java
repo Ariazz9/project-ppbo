@@ -2,6 +2,8 @@ import managers.SoundManager;
 import ui.GamePanel;
 import ui.MainMenu;
 import ui.OptionsMenu;
+import ui.GameOverPanel;
+import ui.LevelTransitionPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +14,9 @@ import java.awt.*;
  */
 public class Main extends JFrame implements MainMenu.MenuActionListener,
         OptionsMenu.OptionsActionListener,
-        GamePanel.GameActionListener {
+        GamePanel.GameActionListener,
+        GameOverPanel.GameOverActionListener,
+        LevelTransitionPanel.TransitionActionListener {
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -21,6 +25,8 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     private MainMenu mainMenu;
     private OptionsMenu optionsMenu;
     private GamePanel gamePanel;
+    private GameOverPanel gameOverPanel;
+    private LevelTransitionPanel levelTransitionPanel;
 
     // Audio manager
     private SoundManager soundManager;
@@ -29,6 +35,8 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     private static final String MAIN_MENU = "MAIN_MENU";
     private static final String OPTIONS_MENU = "OPTIONS_MENU";
     private static final String GAME_PANEL = "GAME_PANEL";
+    private static final String GAME_OVER_PANEL = "GAME_OVER_PANEL";
+    private static final String LEVEL_TRANSITION_PANEL = "LEVEL_TRANSITION_PANEL";
 
     public Main() {
         setTitle("Space Shooter - Enhanced Edition");
@@ -63,10 +71,18 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
         gamePanel = new GamePanel();
         gamePanel.setGameActionListener(this);
 
+        gameOverPanel = new GameOverPanel();
+        gameOverPanel.setGameOverActionListener(this);
+
+        levelTransitionPanel = new LevelTransitionPanel();
+        levelTransitionPanel.setTransitionActionListener(this);
+
         // Add panels to card layout
         mainPanel.add(mainMenu, MAIN_MENU);
         mainPanel.add(optionsMenu, OPTIONS_MENU);
         mainPanel.add(gamePanel, GAME_PANEL);
+        mainPanel.add(gameOverPanel, GAME_OVER_PANEL);
+        mainPanel.add(levelTransitionPanel, LEVEL_TRANSITION_PANEL);
 
         add(mainPanel);
     }
@@ -106,6 +122,27 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
         gamePanel.startGameAudio();
     }
 
+    /**
+     * Show game over panel with final score
+     */
+    private void showGameOverPanel(int finalScore) {
+        gameOverPanel.setFinalScore(finalScore);
+        cardLayout.show(mainPanel, GAME_OVER_PANEL);
+        gameOverPanel.requestFocusInWindow();
+        gameOverPanel.startAnimation();
+    }
+
+    /**
+     * Show level transition panel
+     */
+    private void showLevelTransition(int level) {
+        levelTransitionPanel.setLevel(level);
+        cardLayout.show(mainPanel, LEVEL_TRANSITION_PANEL);
+        levelTransitionPanel.startTransition(() -> {
+            showGamePanel();
+        });
+    }
+
     // MainMenu.MenuActionListener implementation
     @Override
     public void onStartGame() {
@@ -140,19 +177,29 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     @Override
     public void onGameOver(int finalScore) {
         gamePanel.stopGameAudio();
+        showGameOverPanel(finalScore);
+    }
 
-        // Show game over dialog
-        int choice = JOptionPane.showConfirmDialog(this,
-                "Game Over!\nFinal Score: " + finalScore + "\n\nReturn to Main Menu?",
-                "Game Over",
-                JOptionPane.YES_NO_OPTION);
+    // GameOverPanel.GameOverActionListener implementation
+    @Override
+    public void onRestartGame() {
+        showGamePanel();
+    }
 
-        if (choice == JOptionPane.YES_OPTION) {
-            showMainMenu();
-        } else {
-            cleanup();
-            System.exit(0);
-        }
+    @Override
+    public void onReturnToMainMenu() {
+        showMainMenu();
+    }
+
+    // LevelTransitionPanel.TransitionActionListener implementation
+    @Override
+    public void onTransitionComplete() {
+        showGamePanel();
+    }
+
+    @Override
+    public void onLevelTransition(int level) {
+        showLevelTransition(level);
     }
 
     /**
@@ -161,6 +208,12 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     private void cleanup() {
         if (mainMenu != null) {
             mainMenu.cleanup();
+        }
+        if (gameOverPanel != null) {
+            gameOverPanel.cleanup();
+        }
+        if (levelTransitionPanel != null) {
+            levelTransitionPanel.cleanup();
         }
         if (soundManager != null) {
             soundManager.cleanup();

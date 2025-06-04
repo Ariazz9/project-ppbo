@@ -37,9 +37,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public interface GameActionListener {
         void onReturnToMenu();
         void onGameOver(int finalScore);
+        void onLevelTransition(int level); // Add this new method
     }
 
     private GameActionListener gameActionListener;
+    private int currentDisplayedLevel = 1;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -71,6 +73,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
 
     public void startGame() {
+        // Reset game state
+        player.setHealthToMax();
+        enemies.clear();
+        bullets.clear();
+        enemyBullets.clear();
+        gameManager = new GameManager();
+        currentDisplayedLevel = 1;
+
         timer.start();
     }
 
@@ -97,7 +107,36 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         updateEnemyBullets();
         checkCollisions();
         gameManager.update(enemies, PANEL_WIDTH, PANEL_HEIGHT);
+
+        // Check for level transition
+        checkLevelTransition();
+
         removeOffScreenObjects();
+    }
+
+    /**
+     * Check if player has advanced to a new level and trigger transition
+     */
+    private void checkLevelTransition() {
+        int currentLevel = gameManager.getLevel();
+        if (currentLevel > currentDisplayedLevel) {
+            currentDisplayedLevel = currentLevel;
+
+            // Pause game temporarily for transition
+            timer.stop();
+
+            if (gameActionListener != null) {
+                gameActionListener.onLevelTransition(currentLevel);
+            }
+
+            // Resume game after a short delay
+            Timer resumeTimer = new Timer(3000, e -> {
+                timer.start();
+                ((Timer) e.getSource()).stop();
+            });
+            resumeTimer.setRepeats(false);
+            resumeTimer.start();
+        }
     }
 
     private void handleInput() {
@@ -193,7 +232,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             EnemyBullet bullet = enemyBulletIterator.next();
             if (bullet.collidesWith(player)) {
                 enemyBulletIterator.remove();
-                player.takeDamage(1);
+                player.takeDamage(bullet.getDamage()); // Use bullet's damage value
                 if (player.getHealth() <= 0) {
                     gameOver();
                 }

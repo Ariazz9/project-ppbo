@@ -1,12 +1,10 @@
 package ui;
 
-import audio.AudioManager;
+import managers.SoundManager;
 import enums.GameState;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class MenuPanel extends JPanel {
     private static final int PANEL_HEIGHT = 600;
 
     private List<MenuButton> buttons;
-    private AudioManager audioManager;
+    private SoundManager soundManager;
     private GameStateListener gameStateListener;
     private Timer animationTimer;
     private List<Star> stars;
@@ -35,7 +33,7 @@ public class MenuPanel extends JPanel {
 
     public MenuPanel(GameStateListener listener) {
         this.gameStateListener = listener;
-        this.audioManager = AudioManager.getInstance();
+        this.soundManager = SoundManager.getInstance();
 
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setBackground(Color.BLACK);
@@ -65,7 +63,7 @@ public class MenuPanel extends JPanel {
         // Start Game button
         MenuButton startButton = new MenuButton("START GAME", 400, 250, 200, 50);
         startButton.addActionListener(e -> {
-            audioManager.playSound(AudioManager.MENU_CLICK);
+            soundManager.playSound(SoundManager.MENU_CLICK);
             gameStateListener.onGameStateChange(GameState.PLAYING);
         });
         buttons.add(startButton);
@@ -73,7 +71,7 @@ public class MenuPanel extends JPanel {
         // Settings button
         MenuButton settingsButton = new MenuButton("SETTINGS", 400, 320, 200, 50);
         settingsButton.addActionListener(e -> {
-            audioManager.playSound(AudioManager.MENU_CLICK);
+            soundManager.playSound(SoundManager.MENU_CLICK);
             gameStateListener.onGameStateChange(GameState.SETTINGS);
         });
         buttons.add(settingsButton);
@@ -81,7 +79,7 @@ public class MenuPanel extends JPanel {
         // Exit button
         MenuButton exitButton = new MenuButton("EXIT", 400, 390, 200, 50);
         exitButton.addActionListener(e -> {
-            audioManager.playSound(AudioManager.MENU_CLICK);
+            soundManager.playSound(SoundManager.MENU_CLICK);
             System.exit(0);
         });
         buttons.add(exitButton);
@@ -150,8 +148,8 @@ public class MenuPanel extends JPanel {
         g2d.drawString("Version 1.0 - Enhanced Edition", 10, PANEL_HEIGHT - 10);
 
         // Volume indicator
-        String volumeText = audioManager.isMuted() ? "MUTED (M to toggle)" :
-                "Volume: " + (int)(audioManager.getMasterVolume() * 100) + "% (M to mute, +/- to adjust)";
+        String volumeText = soundManager.isMuted() ? "MUTED (M to toggle)" :
+                "Volume: " + (int)(soundManager.getMasterVolume() * 100) + "% (M to mute, +/- to adjust)";
         g2d.drawString(volumeText, PANEL_WIDTH - 300, PANEL_HEIGHT - 10);
     }
 
@@ -179,7 +177,7 @@ public class MenuPanel extends JPanel {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     hovered = true;
-                    audioManager.playSound(AudioManager.MENU_HOVER);
+                    soundManager.playSound(SoundManager.MENU_HOVER);
                     repaint();
                 }
 

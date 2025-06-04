@@ -1,6 +1,6 @@
 package ui;
 
-import audio.AudioManager;
+import managers.SoundManager;
 import enums.GameState;
 
 import javax.swing.*;
@@ -15,14 +15,14 @@ public class SettingsPanel extends JPanel {
     private static final int PANEL_WIDTH = 1000;
     private static final int PANEL_HEIGHT = 600;
 
-    private AudioManager audioManager;
+    private SoundManager soundManager;
     private MenuPanel.GameStateListener gameStateListener;
     private JSlider volumeSlider;
     private JCheckBox muteCheckBox;
 
     public SettingsPanel(MenuPanel.GameStateListener listener) {
         this.gameStateListener = listener;
-        this.audioManager = AudioManager.getInstance();
+        this.soundManager = SoundManager.getInstance();
 
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         setBackground(Color.BLACK);
@@ -53,23 +53,23 @@ public class SettingsPanel extends JPanel {
         gbc.gridwidth = 1;
         add(volumeLabel, gbc);
 
-        volumeSlider = new JSlider(0, 100, (int)(audioManager.getMasterVolume() * 100));
+        volumeSlider = new JSlider(0, 100, (int)(soundManager.getMasterVolume() * 100));
         volumeSlider.setBackground(Color.BLACK);
         volumeSlider.setForeground(Color.WHITE);
         volumeSlider.addChangeListener(e -> {
             float volume = volumeSlider.getValue() / 100.0f;
-            audioManager.setMasterVolume(volume);
+            soundManager.setMasterVolume(volume);
         });
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(volumeSlider, gbc);
 
         // Mute checkbox
-        muteCheckBox = new JCheckBox("Mute All Sounds", audioManager.isMuted());
+        muteCheckBox = new JCheckBox("Mute All Sounds", soundManager.isMuted());
         muteCheckBox.setFont(new Font("Arial", Font.BOLD, 18));
         muteCheckBox.setForeground(Color.WHITE);
         muteCheckBox.setBackground(Color.BLACK);
-        muteCheckBox.addActionListener(e -> audioManager.toggleMute());
+        muteCheckBox.addActionListener(e -> soundManager.toggleMute());
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -81,7 +81,7 @@ public class SettingsPanel extends JPanel {
         backButton.setForeground(Color.WHITE);
         backButton.setBackground(Color.DARK_GRAY);
         backButton.addActionListener(e -> {
-            audioManager.playSound(AudioManager.MENU_CLICK);
+            soundManager.playSound(SoundManager.MENU_CLICK);
             gameStateListener.onGameStateChange(GameState.MENU);
         });
         gbc.gridx = 0;
