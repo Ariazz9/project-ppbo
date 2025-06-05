@@ -240,6 +240,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+        for (Enemy enemy : enemies){
+            if (enemy.getX() < -50 && enemy == enemies.getLast()){
+                gameOver();
+            }
+        }
+
         // Player vs enemies
         for (Enemy enemy : enemies) {
             if (player.collidesWith(enemy)) {
@@ -307,6 +313,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         for (int i = 0; i < keys.length; i++) {
             keys[i] = false;
         }
+    }
+
+    public void resetAll(){
+        // Reset game state
+        enemies.clear();
+        bullets.clear();
+        enemyBullets.clear();
+        player.setHealthToMax();
+        player.resetState();
+        currentDisplayedLevel = 1;
+        gameManager = new GameManager(currentDisplayedLevel);
+        clearKeys();
+
+        timer.start();
     }
 
     @Override

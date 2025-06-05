@@ -8,7 +8,7 @@ import java.awt.*;
  */
 public class Bullet extends GameObject {
     public Bullet(double x, double y, double velocityX, double velocityY) {
-        super(x, y, 8, 4, Color.YELLOW);
+        super(x, y, 9, 5, Color.YELLOW);
         this.velocityX = velocityX;
         this.velocityY = velocityY;
     }

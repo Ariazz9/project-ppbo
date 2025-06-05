@@ -146,6 +146,7 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     // MainMenu.MenuActionListener implementation
     @Override
     public void onStartGame() {
+        gamePanel.resetAll();
         showGamePanel();
     }
 
@@ -183,6 +184,7 @@ public class Main extends JFrame implements MainMenu.MenuActionListener,
     // GameOverPanel.GameOverActionListener implementation
     @Override
     public void onRestartGame() {
+        gamePanel.resetAll();
         showGamePanel();
     }
 

@@ -10,7 +10,7 @@ public class EnemyBullet extends GameObject {
     private int damage;
 
     public EnemyBullet(double x, double y, double velocityX, double velocityY, int damage) {
-        super(x, y, 6, 3, Color.ORANGE);
+        super(x, y, 9, 5, Color.ORANGE);
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.damage = damage;
@@ -36,8 +36,8 @@ public class EnemyBullet extends GameObject {
         g2d.fillOval((int)(x + 1), (int)(y + 1), (int)(width - 2), (int)(height - 2));
 
         // Trail effect
-        g2d.setColor(new Color(255, 100, 0, 120));
-        g2d.fillOval((int)(x + width), (int)(y - 1), 3, (int)(height + 2));
+        g2d.setColor(new Color(255, 155, 0, 120));
+        g2d.fillOval((int)(x + width), (int)(y - 1), 4, (int)(height + 2));
         g2d.setColor(new Color(255, 100, 0, 60));
         g2d.fillOval((int)(x + width + 3), (int)(y - 2), 3, (int)(height + 4));
     }

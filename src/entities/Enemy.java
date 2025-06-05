@@ -53,7 +53,11 @@ public class Enemy extends GameObject {
         this.speed = BASE_SPEED + (cycleLevel - 1) * 0.5;
 
         // Bullet damage increases every 5 levels
-        this.bulletDamage = 1 + damageMultiplier;
+        if (damageMultiplier < 1){
+            this.bulletDamage = 1;
+        } else {
+            this.bulletDamage = 2 * damageMultiplier;
+        }
 
         // Score value increases with level
         this.scoreValue = 10 + (level - 1) * 2;
@@ -85,6 +89,10 @@ public class Enemy extends GameObject {
         if (shootTimer > 0) {
             shootTimer--;
         }
+
+        // Keep enemy within screen bounds
+        if (y < 0) y = 0;
+        if (y > 600 - height) y = 600 - height;
     }
 
     @Override
