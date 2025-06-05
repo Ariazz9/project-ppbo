@@ -78,6 +78,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         bullets.clear();
         enemyBullets.clear();
         gameManager = new GameManager(currentDisplayedLevel);
+        clearKeys();
 
         timer.start();
     }
